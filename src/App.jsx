@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 
-const API_URL = "https://script.google.com/macros/s/AKfycbz9UdysjI-zzvOoKI_CxXPZMA6P1KfZyItyStpfEzr7m-VAMF_45gwMLql-nmq9tbAH/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbz9UdysjI-zzvOoKI_CxXPZMA6PlKfZyItyStpF";
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState('PROFILE');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
-  
+
   const [dbProducts, setDbProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -14,15 +14,14 @@ export default function Dashboard() {
   const [unpaidOrders, setUnpaidOrders] = useState([]);
   const [paymentInputs, setPaymentInputs] = useState({});
   const [undeliveredOrders, setUndeliveredOrders] = useState([]);
-  
-  // 每週防呆跟進狀態
   const [weeklyTasks, setWeeklyTasks] = useState([]);
   const [checkedTasks, setCheckedTasks] = useState({});
 
   const [formData, setFormData] = useState({
     customerName: '', productName: '', amount: '', ownerPrice: '', storeName: '',
     ibvPercent: '', cashPercent: '', quantity: '1', price: '', paymentInfo: '',
-    deliveryDate: new Date().toISOString().split('T')[0]
+    deliveryDate: new Date().toISOString().split('T')[0],
+    noDeliveryDate: false
   });
 
   const [profileData, setProfileData] = useState({
@@ -31,8 +30,8 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'get_products' }) })
-    .then(res => res.json()).then(result => { if (result.data) setDbProducts(result.data); })
-    .catch(err => console.error(err));
+      .then(res => res.json()).then(result => { if (result.data) setDbProducts(result.data); })
+      .catch(err => console.error(err));
   }, []);
 
   useEffect(() => {
@@ -62,8 +61,17 @@ export default function Dashboard() {
       .catch(err => setLoading(false));
   };
 
-  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData({ ...formData, [name]: type === 'checkbox' ? checked : value });
+  };
+
   const handleProfileChange = (e) => setProfileData({ ...profileData, [e.target.name]: e.target.value });
+
+  // 🌟 一鍵填入自用按鈕
+  const setSelfUse = () => {
+    setFormData(prev => ({ ...prev, customerName: '[自用]', paymentInfo: '[自用]' }));
+  };
 
   const handleProductSearch = (e) => {
     const keyword = e.target.value;
@@ -88,10 +96,10 @@ export default function Dashboard() {
       });
       const result = await response.json();
       setMessage(result.data.message || '操作成功！');
-      setFormData(prev => ({ 
-        ...prev, productName: '', amount: '', ownerPrice: '', storeName: '', 
+      setFormData(prev => ({
+        ...prev, customerName: '', productName: '', amount: '', ownerPrice: '', storeName: '',
         ibvPercent: '', cashPercent: '', quantity: '1', price: '', paymentInfo: '',
-        deliveryDate: new Date().toISOString().split('T')[0]
+        deliveryDate: new Date().toISOString().split('T')[0], noDeliveryDate: false
       }));
     } catch (error) { setMessage('發生錯誤'); }
     setLoading(false);
@@ -137,12 +145,11 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gray-100 p-4 md:p-8 font-sans">
       <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
-        
+
         <div className="bg-indigo-600 p-5 text-white text-center">
           <h1 className="text-xl md:text-2xl font-bold tracking-wider">全通路訂單控制台</h1>
         </div>
-        
-        {/* 分頁導覽列 */}
+
         <div className="flex border-b bg-gray-50 overflow-x-auto">
           <button onClick={() => setActiveTab('PROFILE')} className={`flex-1 min-w-[90px] py-3 font-bold text-xs md:text-sm ${activeTab === 'PROFILE' ? 'text-emerald-600 border-b-4 border-emerald-600 bg-white' : 'text-gray-500'}`}>🌟 貴人建檔</button>
           <button onClick={() => setActiveTab('BV')} className={`flex-1 min-w-[90px] py-3 font-bold text-xs md:text-sm ${activeTab === 'BV' ? 'text-blue-600 border-b-4 border-blue-600 bg-white' : 'text-gray-500'}`}>獨家代理</button>
@@ -155,8 +162,7 @@ export default function Dashboard() {
         {message && <div className="m-4 p-3 bg-green-50 text-green-700 border border-green-200 rounded-lg text-center font-medium">{message}</div>}
 
         <div className="p-5 md:p-8 space-y-5">
-          
-          {/* 1. 貴人建檔 */}
+
           {activeTab === 'PROFILE' && (
             <div className="space-y-6 animate-fade-in">
               <div className="bg-emerald-50 p-5 rounded-xl border border-emerald-100 space-y-4">
@@ -173,10 +179,15 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* 2. 獨家代理 (BV) */}
+          {/* 獨家代理 (BV) */}
           {activeTab === 'BV' && (
             <div className="space-y-5 animate-fade-in">
-              <div><label className="text-sm font-semibold text-gray-700 mb-1 block">貴人姓名 (若為自用請填: 名字 [自用] 或 名字 [月要求])</label><input type="text" name="customerName" value={formData.customerName} onChange={handleChange} className="w-full border p-3 rounded-lg outline-none" placeholder="例如：吳宣萱 或 蘇慈棻 [自用]" /></div>
+              <div className="flex justify-between items-center">
+                <label className="text-sm font-semibold text-gray-700">貴人姓名</label>
+                <button type="button" onClick={setSelfUse} className="text-xs bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold px-3 py-1 rounded-lg transition-colors">✨ 一鍵填入 [自用]</button>
+              </div>
+              <input type="text" name="customerName" value={formData.customerName} onChange={handleChange} className="w-full border p-3 rounded-lg outline-none" placeholder="例如：吳宣萱 或 點上方按鈕" />
+
               <div className="bg-blue-50 p-5 rounded-xl border border-blue-100 space-y-4">
                 <div className="relative">
                   <label className="text-sm font-semibold text-blue-900 mb-1 block">商品名稱 (關鍵字自動搜尋)</label>
@@ -195,7 +206,16 @@ export default function Dashboard() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div><label className="text-sm font-semibold text-blue-900 mb-1 block">單件售價</label><input type="number" name="price" value={formData.price} onChange={handleChange} className="w-full border border-blue-200 p-3 rounded-lg bg-white outline-none" /></div>
                   <div><label className="text-sm font-semibold text-blue-900 mb-1 block">購買數量</label><input type="number" name="quantity" value={formData.quantity} onChange={handleChange} className="w-full border border-blue-200 p-3 rounded-lg bg-white outline-none" min="1" /></div>
-                  <div><label className="text-sm font-semibold text-blue-900 mb-1 block">🌟 預估出貨日</label><input type="date" name="deliveryDate" value={formData.deliveryDate} onChange={handleChange} className="w-full border border-blue-200 p-3 rounded-lg bg-white outline-none font-medium text-blue-800" /></div>
+                  <div>
+                    <div className="flex justify-between items-center mb-1">
+                      <label className="text-sm font-semibold text-blue-900">預估出貨日</label>
+                      <label className="text-xs flex items-center space-x-1 cursor-pointer text-gray-600">
+                        <input type="checkbox" name="noDeliveryDate" checked={formData.noDeliveryDate} onChange={handleChange} className="rounded" />
+                        <span>不用出貨日</span>
+                      </label>
+                    </div>
+                    <input type="date" name="deliveryDate" disabled={formData.noDeliveryDate} value={formData.deliveryDate} onChange={handleChange} className={`w-full border border-blue-200 p-3 rounded-lg outline-none font-medium ${formData.noDeliveryDate ? 'bg-gray-200 text-gray-400' : 'bg-white text-blue-800'}`} />
+                  </div>
                 </div>
               </div>
               <div><label className="text-sm font-semibold text-gray-700 mb-1 block">收款狀態 / 備註</label><input type="text" name="paymentInfo" value={formData.paymentInfo} onChange={handleChange} className="w-full border p-3 rounded-lg outline-none" placeholder="中信匯款" /></div>
@@ -203,10 +223,15 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* 3. 夥伴商店 (IBV) */}
+          {/* 夥伴商店 (IBV) */}
           {activeTab === 'IBV' && (
             <div className="space-y-5 animate-fade-in">
-              <div><label className="text-sm font-semibold text-gray-700 mb-1 block">貴人姓名 (若為自用請填: 名字 [自用])</label><input type="text" name="customerName" value={formData.customerName} onChange={handleChange} className="w-full border p-3 rounded-lg outline-none" placeholder="例如：吳宣萱" /></div>
+              <div className="flex justify-between items-center">
+                <label className="text-sm font-semibold text-gray-700">貴人姓名</label>
+                <button type="button" onClick={setSelfUse} className="text-xs bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold px-3 py-1 rounded-lg transition-colors">✨ 一鍵填入 [自用]</button>
+              </div>
+              <input type="text" name="customerName" value={formData.customerName} onChange={handleChange} className="w-full border p-3 rounded-lg outline-none" placeholder="例如：吳宣萱" />
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div><label className="text-sm font-semibold text-gray-700 mb-1 block">商店名稱</label><input type="text" name="storeName" value={formData.storeName} onChange={handleChange} className="w-full border p-3 rounded-lg outline-none" placeholder="慧上癮" /></div>
                 <div><label className="text-sm font-semibold text-gray-700 mb-1 block">購買商品</label><input type="text" name="productName" value={formData.productName} onChange={handleChange} className="w-full border p-3 rounded-lg outline-none" placeholder="月餅" /></div>
@@ -219,13 +244,21 @@ export default function Dashboard() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div><label className="text-sm font-semibold text-gray-700 mb-1 block">收款狀態 / 備註</label><input type="text" name="paymentInfo" value={formData.paymentInfo} onChange={handleChange} className="w-full border p-3 rounded-lg outline-none" placeholder="已轉帳" /></div>
-                <div><label className="text-sm font-semibold text-indigo-900 mb-1 block">🌟 應確認到貨日 (同步日曆提醒)</label><input type="date" name="deliveryDate" value={formData.deliveryDate} onChange={handleChange} className="w-full border border-indigo-200 p-3 bg-white outline-none font-medium text-indigo-800" /></div>
+                <div>
+                  <div className="flex justify-between items-center mb-1">
+                    <label className="text-sm font-semibold text-indigo-900">應確認到貨日</label>
+                    <label className="text-xs flex items-center space-x-1 cursor-pointer text-gray-600">
+                      <input type="checkbox" name="noDeliveryDate" checked={formData.noDeliveryDate} onChange={handleChange} className="rounded" />
+                      <span>不用確認到貨日</span>
+                    </label>
+                  </div>
+                  <input type="date" name="deliveryDate" disabled={formData.noDeliveryDate} value={formData.deliveryDate} onChange={handleChange} className={`w-full border border-indigo-200 p-3 rounded-lg outline-none font-medium ${formData.noDeliveryDate ? 'bg-gray-200 text-gray-400' : 'bg-white text-indigo-800'}`} />
+                </div>
               </div>
               <button disabled={loading} onClick={() => handleSubmit('add_ibv')} className="w-full bg-indigo-600 text-white font-bold py-4 rounded-xl shadow-md hover:bg-indigo-700">確認新增 IBV 訂單與到貨提醒</button>
             </div>
           )}
 
-          {/* 4. 待收款對帳 */}
           {activeTab === 'UNPAID' && (
             <div className="space-y-4 animate-fade-in">
               <div className="flex justify-between items-end border-b pb-2"><h2 className="text-lg font-bold">尚未收款訂單 ({unpaidOrders.length} 筆)</h2><button onClick={fetchUnpaidOrders} className="text-indigo-600 text-sm font-semibold">重新整理</button></div>
@@ -241,7 +274,7 @@ export default function Dashboard() {
                       <p className="text-red-500 font-bold text-lg mt-1">NT$ {(order.amount || 0).toLocaleString()}</p>
                     </div>
                     <div className="mt-5 border-t pt-4">
-                      <input type="text" placeholder="填寫收款方式 (例：轉帳)" className="w-full border p-2.5 rounded-lg mb-2 text-sm outline-none" onChange={(e) => setPaymentInputs({...paymentInputs, [order.row]: e.target.value})} value={paymentInputs[order.row] || ''} />
+                      <input type="text" placeholder="填寫收款方式 (例：轉帳)" className="w-full border p-2.5 rounded-lg mb-2 text-sm outline-none" onChange={(e) => setPaymentInputs({ ...paymentInputs, [order.row]: e.target.value })} value={paymentInputs[order.row] || ''} />
                       <button onClick={() => handleUpdatePayment(order)} disabled={!paymentInputs[order.row]} className="w-full bg-green-500 text-white font-bold py-2.5 rounded-lg hover:bg-green-600 disabled:opacity-50">確認入帳</button>
                     </div>
                   </div>
@@ -250,7 +283,6 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* 5. 待交貨對帳 */}
           {activeTab === 'UNDELIVERED' && (
             <div className="space-y-4 animate-fade-in">
               <div className="flex justify-between items-end border-b pb-2">
@@ -286,7 +318,6 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* 6. 每週防呆跟進 */}
           {activeTab === 'WEEKLY_CHECK' && (
             <div className="space-y-4 animate-fade-in">
               <div className="bg-purple-50 p-4 rounded-xl border border-purple-200 text-purple-900 text-sm">
@@ -295,15 +326,15 @@ export default function Dashboard() {
               <div className="flex justify-between items-end border-b pb-2"><h2 className="text-lg font-bold">本週應跟進任務 ({weeklyTasks.length} 項)</h2><button onClick={fetchWeeklyTasks} className="text-purple-600 text-sm font-semibold">重新整理</button></div>
               {loading && <p className="text-center py-4">運算中...</p>}
               {!loading && weeklyTasks.length === 0 && <p className="text-center py-8 text-gray-400 bg-gray-50 rounded-xl">太棒了！近期前後 7 天沒有未完成的跟進任務 🎉</p>}
-              
+
               <div className="space-y-3">
                 {weeklyTasks.map((task, idx) => (
                   <div key={idx} className={`border rounded-xl p-4 flex items-center justify-between transition-all ${checkedTasks[idx] ? 'bg-gray-50 opacity-50 line-through' : 'bg-white shadow-sm'}`}>
                     <div className="flex items-center space-x-4">
-                      <input 
-                        type="checkbox" 
-                        checked={!!checkedTasks[idx]} 
-                        onChange={() => setCheckedTasks({...checkedTasks, [idx]: !checkedTasks[idx]})}
+                      <input
+                        type="checkbox"
+                        checked={!!checkedTasks[idx]}
+                        onChange={() => setCheckedTasks({ ...checkedTasks, [idx]: !checkedTasks[idx] })}
                         className="w-6 h-6 text-purple-600 rounded cursor-pointer"
                       />
                       <div>
