@@ -72,7 +72,6 @@ export default function Dashboard() {
     setFormData(prev => ({ ...prev, customerName: '[自用]', paymentInfo: '[自用]' }));
   };
 
-  // 🌟 修正商品自動搜尋與下拉清單顯示
   const handleProductSearch = (e) => {
     const keyword = e.target.value;
     setFormData({ ...formData, productName: keyword });
@@ -172,11 +171,11 @@ export default function Dashboard() {
               <div className="bg-emerald-50 p-5 rounded-xl border border-emerald-100 space-y-4">
                 <h3 className="font-bold text-emerald-800 border-b border-emerald-200 pb-2">基本聯繫資料</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div><label className="text-sm font-semibold text-emerald-900 mb-1 block">貴人姓名 (必填)</label><input type="text" name="name" value={profileData.name} onChange={handleProfileChange} className="w-full border p-3 rounded-lg outline-none" placeholder="例如：吳宣萱" /></div>
-                  <div><label className="text-sm font-semibold text-emerald-900 mb-1 block">電話</label><input type="text" name="phone" value={profileData.phone} onChange={handleProfileChange} className="w-full border p-3 rounded-lg outline-none" placeholder="0912345678" /></div>
-                  <div><label className="text-sm font-semibold text-emerald-900 mb-1 block">LINE 名稱</label><input type="text" name="line" value={profileData.line} onChange={handleProfileChange} className="w-full border p-3 rounded-lg outline-none" placeholder="LINE 暱稱" /></div>
-                  <div><label className="text-sm font-semibold text-emerald-900 mb-1 block">IG 帳號</label><input type="text" name="ig" value={profileData.ig} onChange={handleProfileChange} className="w-full border p-3 rounded-lg outline-none" placeholder="@帳號" /></div>
-                  <div className="md:col-span-2"><label className="text-sm font-semibold text-emerald-900 mb-1 block">寄件地址</label><input type="text" name="address" value={profileData.address} onChange={handleProfileChange} className="w-full border p-3 rounded-lg outline-none" placeholder="地址或超商門市" /></div>
+                  <div><label className="text-sm font-semibold text-emerald-900 mb-1 block">貴人姓名 (必填)</label><input type="text" name="name" value={profileData.name} onChange={handleProfileChange} className="w-full border p-3 rounded-lg outline-none" placeholder="例如：吳宣萱" autoComplete="off" /></div>
+                  <div><label className="text-sm font-semibold text-emerald-900 mb-1 block">電話</label><input type="text" name="phone" value={profileData.phone} onChange={handleProfileChange} className="w-full border p-3 rounded-lg outline-none" placeholder="0912345678" autoComplete="off" /></div>
+                  <div><label className="text-sm font-semibold text-emerald-900 mb-1 block">LINE 名稱</label><input type="text" name="line" value={profileData.line} onChange={handleProfileChange} className="w-full border p-3 rounded-lg outline-none" placeholder="LINE 暱稱" autoComplete="off" /></div>
+                  <div><label className="text-sm font-semibold text-emerald-900 mb-1 block">IG 帳號</label><input type="text" name="ig" value={profileData.ig} onChange={handleProfileChange} className="w-full border p-3 rounded-lg outline-none" placeholder="@帳號" autoComplete="off" /></div>
+                  <div className="md:col-span-2"><label className="text-sm font-semibold text-emerald-900 mb-1 block">寄件地址</label><input type="text" name="address" value={profileData.address} onChange={handleProfileChange} className="w-full border p-3 rounded-lg outline-none" placeholder="地址或超商門市" autoComplete="off" /></div>
                 </div>
               </div>
               <button disabled={loading} onClick={handleProfileSubmit} className="w-full bg-emerald-600 text-white font-bold py-4 rounded-xl shadow-md hover:bg-emerald-700">確認新增貴人檔案</button>
@@ -190,14 +189,14 @@ export default function Dashboard() {
                 <label className="text-sm font-semibold text-gray-700">貴人姓名</label>
                 <button type="button" onClick={setSelfUse} className="text-xs bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold px-3 py-1 rounded-lg transition-colors">✨ 一鍵填入 [自用]</button>
               </div>
-              <input type="text" name="customerName" value={formData.customerName} onChange={handleChange} className="w-full border p-3 rounded-lg outline-none" placeholder="例如：吳宣萱 或 點上方按鈕" />
+              <input type="text" name="customerName" value={formData.customerName} onChange={handleChange} className="w-full border p-3 rounded-lg outline-none" placeholder="例如：吳宣萱 或 點上方按鈕" autoComplete="off" />
 
               <div className="bg-blue-50 p-5 rounded-xl border border-blue-100 space-y-4">
                 <div className="relative">
                   <label className="text-sm font-semibold text-blue-900 mb-1 block">商品名稱 (關鍵字自動搜尋)</label>
                   <input type="text" name="productName" value={formData.productName} onChange={handleProductSearch} onFocus={() => { if (formData.productName) setIsDropdownOpen(true); }} className="w-full border border-blue-200 p-3 rounded-lg outline-none bg-white" placeholder="例如：OPC" autoComplete="off" />
 
-                  {/* 🌟 智能下拉選單 */}
+                  {/* 獨家代理資料庫搜尋下拉選單 */}
                   {isDropdownOpen && filteredProducts.length > 0 && (
                     <ul className="absolute z-20 w-full bg-white border border-blue-200 rounded-lg shadow-xl max-h-60 overflow-y-auto mt-1">
                       {filteredProducts.map((p, idx) => (
@@ -225,7 +224,7 @@ export default function Dashboard() {
                   </div>
                 </div>
               </div>
-              <div><label className="text-sm font-semibold text-gray-700 mb-1 block">收款狀態 / 備註</label><input type="text" name="paymentInfo" value={formData.paymentInfo} onChange={handleChange} className="w-full border p-3 rounded-lg outline-none" placeholder="中信匯款" /></div>
+              <div><label className="text-sm font-semibold text-gray-700 mb-1 block">收款狀態 / 備註</label><input type="text" name="paymentInfo" value={formData.paymentInfo} onChange={handleChange} className="w-full border p-3 rounded-lg outline-none" placeholder="中信匯款" autoComplete="off" /></div>
               <button disabled={loading} onClick={() => handleSubmit('add_bv')} className="w-full bg-blue-600 text-white font-bold py-4 rounded-xl shadow-md hover:bg-blue-700">確認新增 BV 訂單與智慧排程</button>
             </div>
           )}
@@ -237,11 +236,11 @@ export default function Dashboard() {
                 <label className="text-sm font-semibold text-gray-700">貴人姓名</label>
                 <button type="button" onClick={setSelfUse} className="text-xs bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold px-3 py-1 rounded-lg transition-colors">✨ 一鍵填入 [自用]</button>
               </div>
-              <input type="text" name="customerName" value={formData.customerName} onChange={handleChange} className="w-full border p-3 rounded-lg outline-none" placeholder="例如：吳宣萱" />
+              <input type="text" name="customerName" value={formData.customerName} onChange={handleChange} className="w-full border p-3 rounded-lg outline-none" placeholder="例如：吳宣萱" autoComplete="off" />
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div><label className="text-sm font-semibold text-gray-700 mb-1 block">商店名稱</label><input type="text" name="storeName" value={formData.storeName} onChange={handleChange} className="w-full border p-3 rounded-lg outline-none" placeholder="慧上癮" /></div>
-                <div><label className="text-sm font-semibold text-gray-700 mb-1 block">購買商品</label><input type="text" name="productName" value={formData.productName} onChange={handleChange} className="w-full border p-3 rounded-lg outline-none" placeholder="月餅" /></div>
+                <div><label className="text-sm font-semibold text-gray-700 mb-1 block">商店名稱</label><input type="text" name="storeName" value={formData.storeName} onChange={handleChange} className="w-full border p-3 rounded-lg outline-none" placeholder="慧上癮" autoComplete="off" /></div>
+                <div><label className="text-sm font-semibold text-gray-700 mb-1 block">購買商品</label><input type="text" name="productName" value={formData.productName} onChange={handleChange} className="w-full border p-3 rounded-lg outline-none" placeholder="月餅" autoComplete="off" /></div>
                 <div><label className="text-sm font-semibold text-gray-700 mb-1 block">商品售價 (實付)</label><input type="number" name="amount" value={formData.amount} onChange={handleChange} className="w-full border p-3 rounded-lg outline-none" placeholder="499" /></div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-5 bg-indigo-50 rounded-xl border border-indigo-100">
@@ -250,7 +249,7 @@ export default function Dashboard() {
                 <div><label className="text-sm font-semibold text-indigo-900 mb-1 block">現金回饋 (%)</label><input type="number" name="cashPercent" value={formData.cashPercent} onChange={handleChange} className="w-full border border-indigo-200 p-3 bg-white outline-none" placeholder="2" step="0.1" /></div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div><label className="text-sm font-semibold text-gray-700 mb-1 block">收款狀態 / 備註</label><input type="text" name="paymentInfo" value={formData.paymentInfo} onChange={handleChange} className="w-full border p-3 rounded-lg outline-none" placeholder="已轉帳" /></div>
+                <div><label className="text-sm font-semibold text-gray-700 mb-1 block">收款狀態 / 備註</label><input type="text" name="paymentInfo" value={formData.paymentInfo} onChange={handleChange} className="w-full border p-3 rounded-lg outline-none" placeholder="已轉帳" autoComplete="off" /></div>
                 <div>
                   <div className="flex justify-between items-center mb-1">
                     <label className="text-sm font-semibold text-indigo-900">應確認到貨日</label>
@@ -269,4 +268,101 @@ export default function Dashboard() {
           {activeTab === 'UNPAID' && (
             <div className="space-y-4 animate-fade-in">
               <div className="flex justify-between items-end border-b pb-2"><h2 className="text-lg font-bold">尚未收款訂單 ({unpaidOrders.length} 筆)</h2><button onClick={fetchUnpaidOrders} className="text-indigo-600 text-sm font-semibold">重新整理</button></div>
-              {loading && <p className
+              {loading && <p className="text-center py-4">讀取中...</p>}
+              {!loading && unpaidOrders.length === 0 && <p className="text-center py-8 text-gray-400 bg-gray-50 rounded-xl">目前所有訂單都已收款 🎉</p>}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {unpaidOrders.map((order, idx) => (
+                  <div key={idx} className="bg-white border rounded-xl p-5 shadow-sm flex flex-col justify-between">
+                    <div>
+                      <span className={`text-xs font-bold px-2 py-1 rounded ${order.sheetName === 'BV下單' ? 'bg-blue-100 text-blue-700' : 'bg-indigo-100 text-indigo-700'}`}>{order.sheetName === 'BV下單' ? '獨家代理 (BV)' : '夥伴商店 (IBV)'}</span>
+                      <h3 className="font-bold text-xl mt-2">{order.customerName}</h3>
+                      <p className="text-gray-600">{order.productName}</p>
+                      <p className="text-red-500 font-bold text-lg mt-1">NT$ {(order.amount || 0).toLocaleString()}</p>
+                    </div>
+                    <div className="mt-5 border-t pt-4">
+                      <input type="text" placeholder="填寫收款方式 (例：轉帳)" className="w-full border p-2.5 rounded-lg mb-2 text-sm outline-none" onChange={(e) => setPaymentInputs({ ...paymentInputs, [order.row]: e.target.value })} value={paymentInputs[order.row] || ''} autoComplete="off" />
+                      <button onClick={() => handleUpdatePayment(order)} disabled={!paymentInputs[order.row]} className="w-full bg-green-500 text-white font-bold py-2.5 rounded-lg hover:bg-green-600 disabled:opacity-50">確認入帳</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'UNDELIVERED' && (
+            <div className="space-y-4 animate-fade-in">
+              <div className="flex justify-between items-end border-b pb-2">
+                <h2 className="text-lg font-bold">尚未交貨/尚未到貨訂單 ({undeliveredOrders.length} 筆)</h2>
+                <button onClick={fetchUndeliveredOrders} className="text-orange-600 text-sm font-semibold">重新整理</button>
+              </div>
+              {loading && <p className="text-center py-4">讀取中...</p>}
+              {!loading && undeliveredOrders.length === 0 && <p className="text-center py-8 text-gray-400 bg-gray-50 rounded-xl">目前所有訂單都已到貨交貨 📦✨</p>}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {undeliveredOrders.map((order, idx) => (
+                  <div key={idx} className="bg-white border rounded-xl p-5 shadow-sm flex flex-col justify-between">
+                    <div>
+                      <div className="flex justify-between items-center mb-2">
+                        <span className={`text-xs font-bold px-2 py-1 rounded ${order.sheetName === 'BV下單' ? 'bg-blue-100 text-blue-700' : 'bg-indigo-100 text-indigo-700'}`}>
+                          {order.sheetName === 'BV下單' ? '獨家代理 (BV)' : '夥伴商店 (IBV)'}
+                        </span>
+                        <span className="text-gray-400 text-xs">預計到貨: {order.targetDate || '未指定'}</span>
+                      </div>
+                      <h3 className="font-bold text-xl mt-1">{order.customerName}</h3>
+                      <p className="text-gray-600 text-sm mt-1">{order.productName}</p>
+                    </div>
+                    <div className="mt-5 border-t pt-4 space-y-2">
+                      <p className="text-xs text-gray-500">點擊完成交貨消單：</p>
+                      <div className="grid grid-cols-3 gap-2">
+                        <button onClick={() => handleUpdateDelivery(order, '面交')} className="bg-orange-500 text-white font-bold py-2 rounded-lg text-sm hover:bg-orange-600">🤝 面交</button>
+                        <button onClick={() => handleUpdateDelivery(order, '寄送')} className="bg-blue-500 text-white font-bold py-2 rounded-lg text-sm hover:bg-blue-600">📦 寄送</button>
+                        <button onClick={() => handleUpdateDelivery(order, '廠商直送')} className="bg-purple-500 text-white font-bold py-2 rounded-lg text-sm hover:bg-purple-600">🚀 直送</button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'WEEKLY_CHECK' && (
+            <div className="space-y-4 animate-fade-in">
+              <div className="bg-purple-50 p-4 rounded-xl border border-purple-200 text-purple-900 text-sm">
+                🛡️ <b>每週防呆跟進護城河：</b> 自動列出「本週前後 7 天內」所有需要執行的關心任務與到貨確認。執行完畢後直接打勾，確保不會漏掉任何一位貴人！
+              </div>
+              <div className="flex justify-between items-end border-b pb-2"><h2 className="text-lg font-bold">本週應跟進任務 ({weeklyTasks.length} 項)</h2><button onClick={fetchWeeklyTasks} className="text-purple-600 text-sm font-semibold">重新整理</button></div>
+              {loading && <p className="text-center py-4">運算中...</p>}
+              {!loading && weeklyTasks.length === 0 && <p className="text-center py-8 text-gray-400 bg-gray-50 rounded-xl">太棒了！近期前後 7 天沒有未完成的跟進任務 🎉</p>}
+
+              <div className="space-y-3">
+                {weeklyTasks.map((task, idx) => (
+                  <div key={idx} className={`border rounded-xl p-4 flex items-center justify-between transition-all ${checkedTasks[idx] ? 'bg-gray-50 opacity-50 line-through' : 'bg-white shadow-sm'}`}>
+                    <div className="flex items-center space-x-4">
+                      <input
+                        type="checkbox"
+                        checked={!!checkedTasks[idx]}
+                        onChange={() => setCheckedTasks({ ...checkedTasks, [idx]: !checkedTasks[idx] })}
+                        className="w-6 h-6 text-purple-600 rounded cursor-pointer"
+                      />
+                      <div>
+                        <div className="flex items-center space-x-2">
+                          <span className="font-bold text-lg text-gray-800">{task.customerName}</span>
+                          <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded font-bold">{task.taskType}</span>
+                        </div>
+                        <p className="text-gray-600 text-sm mt-0.5">{task.productName}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-xs text-gray-400 block">排定日期</span>
+                      <span className="font-bold text-purple-600">{task.taskDate}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+        </div>
+      </div>
+    </div>
+  );
+}
