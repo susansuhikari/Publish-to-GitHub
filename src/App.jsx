@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const API_URL = "https://script.google.com/macros/s/AKfycbz9UdysjI-zzvOoKI_CxXPZMA6PlKfZyItyStpF";
+const API_URL = "https://script.google.com/macros/s/AKfycbz4hhE4t_G_x63ty9OUr5VMMIGBtQMyt5UakDBrLI9T6g-PvYrdgRJQrmM6TLw-4BXQFQ/exec";
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState('PROFILE');
